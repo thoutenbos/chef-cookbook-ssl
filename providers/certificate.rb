@@ -126,6 +126,7 @@ action :create do
         cert, ca = x509_issue_self_signed_cert(
           csr,
           new_resource.type,
+          new_resource.digest,
           :city => node['x509']['city'],
           :state => node['x509']['state'],
           :email => node['x509']['email'],
@@ -142,7 +143,8 @@ action :create do
         :ca => new_resource.ca,
         :date => Time.now.to_s,
         :type => new_resource.type,
-        :days => new_resource.days
+        :days => new_resource.days,
+        :digest => new_resource.digest
       }
 
       # write out the key

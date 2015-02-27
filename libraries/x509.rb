@@ -18,7 +18,7 @@ def x509_generate_csr(key, name)
   ea_csr
 end
 
-def x509_issue_self_signed_cert(csr, type, name)
+def x509_issue_self_signed_cert(csr, type, digest, name)
   # generate some randomness so that temporary CAs are unique, since
   # all the serial numbers are the same. some browsers will reject all
   # but the first with the same common name and serial, even if the
@@ -31,7 +31,7 @@ def x509_issue_self_signed_cert(csr, type, name)
     :signing_request => csr,
     :ca_certificate => ca.certificate
   )
-  cert.sign(ca.key)
+  cert.sign(ca.key, eval "OpenSSL::Digest::#{digest}.new")
   return cert, ca
 end
 
