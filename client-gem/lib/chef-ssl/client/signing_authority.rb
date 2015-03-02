@@ -18,8 +18,8 @@ module ChefSSL
         @ca.certificate.subject.to_s
       end
 
-      def sign(req)
-        cert = @ca.create_certificate(req.csr, req.type, req.days)
+      def sign(req, digest)
+        cert = @ca.create_certificate(req.csr, req.type, req.days, digest)
         IssuedCertificate.new(req, cert, @ca)
       end
 

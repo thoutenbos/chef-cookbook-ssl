@@ -13,6 +13,7 @@ def x509_load_key(path)
 end
 
 def x509_generate_csr(key, digest, name)
+  digest = eval "OpenSSL::Digest::#{digest}.new"
   ea_name = EaSSL::CertificateName.new(name)
   ea_csr  = EaSSL::SigningRequest.new(:name => ea_name, :key => key, :digest => digest)
   ea_csr
