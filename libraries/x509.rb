@@ -31,7 +31,8 @@ def x509_issue_self_signed_cert(csr, type, digest, name)
     :signing_request => csr,
     :ca_certificate => ca.certificate
   )
-  cert.sign(ca.key, eval "OpenSSL::Digest::#{digest}.new")
+  digest = eval "OpenSSL::Digest::#{digest}.new"
+  cert.sign(ca.key, digest)
   return cert, ca
 end
 
