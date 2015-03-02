@@ -14,7 +14,7 @@ command :issue do |c|
   c.option "--ca-path=STRING", String, "the path to the new CA"
   c.option "--dn=STRING", String, "the distinguished name for the new certificate"
   c.option "--type=STRING", String, "the type of certificate, client or server"
-  c.option "--digest=STRING", Stringm "the digest algorithm for the new certificate"
+  c.option "--digest=STRING", String, "the digest algorithm for the new certificate"
 
   c.action do |args, options|
 
@@ -58,7 +58,8 @@ command :issue do |c|
     }
 
     req = ChefSSL::Client::Request.create(key, options.type, name)
-    cert = authority.sign(req, eval "OpenSSL::Digest::#{options.digest}.new")
+    digest = eval "OpenSSL::Digest::#{options.digest}.new"
+    cert = authority.sign(req, digest)
 
     say "#{'Key:'.cyan}"
     say HighLine.color(key.private_key.to_s, :bright_black)
@@ -76,8 +77,8 @@ command :makeca do |c|
 
   c.option "--ca-path=STRING", String, "the path to the new CA"
   c.option "--dn=STRING", String, "the distinguished name of the new CA"
-  c.option "--key_length=INT", Int, "the length of the RSA key"
-  c.option "--days=INT", Int, "the validity of the certificate in days"
+  c.option "--key_length=INT", Integer, "the length of the RSA key"
+  c.option "--days=INT", Integer, "the validity of the certificate in days"
   c.option "--digest=STRING", String, "the digest algorithm for the certificate"
 
   c.action do |args, options|
@@ -97,8 +98,8 @@ command :makeca do |c|
 
     raise "CA path is required" unless options.ca_path
     raise "CA path must not already exist" if Dir.glob(options.ca_path).length > 0
-    raise "Key length must be numeric" unless options.key_length.type_of? Integer and options.key_length > 0
-    raise "Validity must be numeric" unless options.days.type_of? Integer and options.days > 0
+    raise "Key length must be numeric" unless options.key_length.is_a? Integer and options.key_length > 0
+    raise "Validity must be numeric" unless options.days.is_a? Integer and options.days > 0
     raise "Digest is not a valid option" unless ['SHA', 'SHA1', 'SHA224', 'SHA256', 'SHA384', 'SHA512', 'MD5'].include? options.digest
 
     say "#{' New CA DN'.cyan}: #{name.to_s}"
@@ -112,7 +113,8 @@ command :makeca do |c|
     raise "passphrases do not match" unless passphrase == passphrase2
 
     say "\n#{'Creating new CA'.cyan}: "
-    ChefSSL::Client::SigningAuthority.create(name, options.ca_path, passphrase, options.key_length, options.days, eval "OpenSSL::Digest::#{options.digest}.new")
+    digest = eval "OpenSSL::Digest::#{options.digest}.new"
+    ChefSSL::Client::SigningAuthority.create(name, options.ca_path, passphrase, options.key_length, options.days, digest)
     say "done"
   end
 end
@@ -257,7 +259,8 @@ command :autosign do |c|
         menu.prompt = "#{'Sign with'.cyan}: #{HighLine.color(authority.dn, :bold)}\nSign this? "
 
         menu.choice :yes do
-          cert = authority.sign(req, eval "OpenSSL::Digest::#{req.digest}.new")
+          digest = eval "OpenSSL::Digest::#{options.digest}.new"
+          cert = authority.sign(req, digest)
           say ""
           say "#{'Signed:'.cyan} SHA1 Fingerprint=#{cert.sha1_fingerprint}"
           say HighLine.color(cert.to_pem, :bright_black)
