@@ -259,7 +259,7 @@ command :autosign do |c|
         menu.prompt = "#{'Sign with'.cyan}: #{HighLine.color(authority.dn, :bold)}\nSign this? "
 
         menu.choice :yes do
-          digest = eval "OpenSSL::Digest::#{options.digest}.new"
+          digest = eval "OpenSSL::Digest::#{req.digest}.new"
           cert = authority.sign(req, digest)
           say ""
           say "#{'Signed:'.cyan} SHA1 Fingerprint=#{cert.sha1_fingerprint}"
