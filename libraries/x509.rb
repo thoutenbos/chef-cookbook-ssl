@@ -12,9 +12,9 @@ def x509_load_key(path)
   return EaSSL::Key.load(path)
 end
 
-def x509_generate_csr(key, name)
+def x509_generate_csr(key, digest, name)
   ea_name = EaSSL::CertificateName.new(name)
-  ea_csr  = EaSSL::SigningRequest.new(:name => ea_name, :key => key)
+  ea_csr  = EaSSL::SigningRequest.new(:name => ea_name, :key => key, :digest => digest)
   ea_csr
 end
 
